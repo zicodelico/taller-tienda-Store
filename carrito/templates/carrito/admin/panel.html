@@ -1,0 +1,137 @@
+{% extends 'carrito/base.html' %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-speedometer2"></i> Panel de Administración</h2>
+        <div>
+            <a href="{% url 'carrito:admin_crear_producto' %}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Nuevo Producto
+            </a>
+            {% if user.is_superuser %}
+        <a href="{% url 'carrito:gestion_usuarios' %}" class="btn btn-info text-white">
+            <i class="bi bi-people-fill"></i> Gestionar Usuarios
+        </a>
+        {% endif %}
+        </div>
+    </div>
+
+    <!-- Tarjetas de Resumen -->
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-primary h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ total_productos }}</h5>
+                    <p class="card-text">Productos Registrados</p>
+                    <a href="{% url 'carrito:admin_lista_productos' %}" class="text-white">
+                        Ver todos <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-warning h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ productos_bajo_stock|length }}</h5>
+                    <p class="card-text">Productos con bajo stock</p>
+                    <a href="{% url 'carrito:admin_lista_productos' %}?filter=bajo_stock" class="text-white">
+                        Revisar <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card text-white bg-danger h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ productos_agotados|length }}</h5>
+                    <p class="card-text">Productos agotados</p>
+                    <a href="{% url 'carrito:admin_lista_productos' %}?filter=agotados" class="text-white">
+                        Reabastecer <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimos Productos -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4><i class="bi bi-clock-history"></i> Últimos Productos</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Inventario</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in ultimos_productos %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'carrito:admin_editar_producto' producto.id %}">
+                                    {{ producto.nombre }}
+                                </a>
+                            </td>
+                            <td>${{ producto.precio }}</td>
+                            <td>
+                                <span class="badge bg-{% if producto.inventario < 5 %}danger{% else %}success{% endif %}">
+                                    {{ producto.inventario }}
+                                </span>
+                            </td>
+                            <td>{{ producto.creado|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos con Bajo Stock -->
+    {% if productos_bajo_stock %}
+    <div class="card">
+        <div class="card-header bg-warning text-white">
+            <h4><i class="bi bi-exclamation-triangle"></i> Productos con bajo stock (<5 unidades)</h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Stock Actual</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos_bajo_stock %}
+                        <tr>
+                            <td>{{ producto.nombre }}</td>
+                            <td>
+                                <span class="badge bg-danger">{{ producto.inventario }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'carrito:admin_editar_producto' producto.id %}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Actualizar
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'carrito/base.html' %}
+
+{% block title %}Nuevo Producto{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-plus-circle"></i> Crear Nuevo Producto</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_nombre" class="form-label">Nombre del Producto</label>
+                            {{ form.nombre }}
+                            {% if form.nombre.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.nombre.errors.as_text }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_descripcion" class="form-label">Descripción</label>
+                            {{ form.descripcion }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_precio" class="form-label">Precio Unitario</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    {{ form.precio }}
+                                </div>
+                                {% if form.precio.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.precio.errors.as_text }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_inventario" class="form-label">Cantidad en Inventario</label>
+                                {{ form.inventario }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_imagen" class="form-label">Imagen del Producto</label>
+                            {{ form.imagen }}
+                            <div class="form-text">Formatos soportados: JPG, PNG, GIF. Tamaño máximo: 2MB.</div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'carrito:admin_lista_productos' %}" class="btn btn-secondary me-md-2">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" name="guardar_y_agregar" class="btn btn-outline-primary me-md-2">
+                                <i class="bi bi-save"></i> Guardar y agregar otro
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Guardar Producto
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validación de precio positivo
+    const precioInput = document.getElementById('id_precio');
+    precioInput.addEventListener('change', function() {
+        if (parseFloat(this.value) <= 0) {
+            this.classList.add('is-invalid');
+        } else {
+            this.classList.remove('is-invalid');
+        }
+    });
+});
+</script>
+{% endblock %}

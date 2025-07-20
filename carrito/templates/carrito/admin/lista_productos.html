@@ -1,0 +1,164 @@
+{% extends 'carrito/base.html' %}
+
+{% block title %}Administrar Productos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-box-seam"></i> Administrar Productos</h2>
+        <div>
+            <a href="{% url 'carrito:admin_crear_producto' %}" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Nuevo Producto
+            </a>
+            <a href="{% url 'carrito:admin_panel' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-speedometer2"></i> Panel
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" name="q" class="form-control" placeholder="Buscar productos..." 
+                           value="{{ request.GET.q }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="filter" class="form-select">
+                        <option value="">Todos los productos</option>
+                        <option value="bajo_stock" {% if request.GET.filter == 'bajo_stock' %}selected{% endif %}>
+                            Bajo stock
+                        </option>
+                        <option value="agotados" {% if request.GET.filter == 'agotados' %}selected{% endif %}>
+                            Agotados
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Productos -->
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">
+                {{ productos.paginator.count }} productos encontrados
+                {% if request.GET.q %}para "{{ request.GET.q }}"{% endif %}
+            </h4>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Imagen</th>
+                            <th>Última actualización</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr>
+                            <td>{{ producto.nombre }}</td>
+                            <td>${{ producto.precio }}</td>
+                            <td>
+                                <span class="badge bg-{% if producto.inventario == 0 %}danger{% elif producto.inventario < 5 %}warning{% else %}success{% endif %}">
+                                    {{ producto.inventario }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if producto.imagen %}
+                                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" 
+                                     style="height: 30px; width: auto;">
+                                {% else %}
+                                <span class="text-muted">Sin imagen</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ producto.actualizado|timesince }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'carrito:admin_editar_producto' producto.id %}" 
+                                       class="btn btn-outline-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form method="post" action="{% url 'carrito:admin_eliminar_producto' producto.id %}" 
+                                          class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger"
+                                                onclick="return confirm('¿Eliminar este producto permanentemente?')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                No se encontraron productos
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            {% if productos.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mt-4">
+                    {% if productos.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}">
+                            &laquo; Primera
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ productos.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}">
+                            Anterior
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in productos.paginator.page_range %}
+                        {% if productos.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > productos.number|add:'-3' and num < productos.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if productos.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ productos.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}">
+                            Siguiente
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ productos.paginator.num_pages }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.filter %}&filter={{ request.GET.filter }}{% endif %}">
+                            Última &raquo;
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

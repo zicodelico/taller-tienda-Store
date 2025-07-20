@@ -1,0 +1,20 @@
+{% extends 'carrito/base.html' %}
+
+{% block title %}¡Compra Exitosa!{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <div class="card border-success">
+        <div class="card-header bg-success text-white">
+            <h2><i class="bi bi-check-circle-fill"></i> ¡Compra realizada con éxito!</h2>
+        </div>
+        <div class="card-body">
+            <p class="lead">Gracias por tu compra. Hemos recibido tu pedido correctamente.</p>
+            <p>Te hemos enviado un correo electrónico con los detalles de tu compra.</p>
+            <a href="{% url 'carrito:lista_productos' %}" class="btn btn-primary mt-3">
+                <i class="bi bi-arrow-left"></i> Volver a la tienda
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,164 @@
+{% extends 'carrito/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2><i class="bi bi-people-fill"></i> Gestión de Usuarios</h2>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Lista de Usuarios</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Grupos</th>
+                        <th>Permisos</th>
+                        <th>Staff</th>
+                        <th>Superuser</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>{{ usuario.username }}</td>
+                        <td>{{ usuario.email|default:"-" }}</td>
+                        <td>
+                            {% for grupo in usuario.groups.all %}
+                            <span class="badge bg-primary">{{ grupo.name }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% for permiso in usuario.user_permissions.all %}
+                            <span class="badge bg-info">{{ permiso.codename }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ usuario.is_staff|yesno:"✅,❌" }}</td>
+                        <td>{{ usuario.is_superuser|yesno:"✅,❌" }}</td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" data-bs-toggle="modal" 
+                                    data-bs-target="#modalEditarUsuario" 
+                                    data-userid="{{ usuario.id }}"
+                                    data-username="{{ usuario.username }}">
+                                <i class="bi bi-pencil"></i> Editar
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar usuario -->
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Usuario: <span id="nombreUsuario"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'carrito:actualizar_usuario' 0 %}" id="formEditarUsuario">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Grupos</h6>
+                            {% for grupo in grupos %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="grupos" value="{{ grupo.id }}" 
+                                       id="grupo{{ grupo.id }}">
+                                <label class="form-check-label" for="grupo{{ grupo.id }}">
+                                    {{ grupo.name }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Permisos Individuales</h6>
+                            {% for permiso in permisos %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="permisos" value="{{ permiso.id }}" 
+                                       id="permiso{{ permiso.id }}">
+                                <label class="form-check-label" for="permiso{{ permiso.id }}">
+                                    {{ permiso.name }} ({{ permiso.codename }})
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="is_staff" id="is_staff">
+                                <label class="form-check-label" for="is_staff">
+                                    Es staff
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       name="is_superuser" id="is_superuser">
+                                <label class="form-check-label" for="is_superuser">
+                                    Es superusuario
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var modalEditar = document.getElementById('modalEditarUsuario');
+    
+    modalEditar.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var userId = button.getAttribute('data-userid');
+        var username = button.getAttribute('data-username');
+        
+        // Actualizar el formulario
+        var form = document.getElementById('formEditarUsuario');
+        form.action = form.action.replace('/0/', '/' + userId + '/');
+        document.getElementById('nombreUsuario').textContent = username;
+        
+        // Aquí deberías hacer una petición AJAX para cargar los datos actuales del usuario
+        // y marcar los checkboxes correspondientes
+        fetch('/api/user-permissions/' + userId + '/')
+            .then(response => response.json())
+            .then(data => {
+                // Marcar grupos
+                data.groups.forEach(groupId => {
+                    let checkbox = document.querySelector('input[name="grupos"][value="' + groupId + '"]');
+                    if(checkbox) checkbox.checked = true;
+                });
+                
+                // Marcar permisos
+                data.permissions.forEach(permId => {
+                    let checkbox = document.querySelector('input[name="permisos"][value="' + permId + '"]');
+                    if(checkbox) checkbox.checked = true;
+                });
+                
+                // Marcar staff/superuser
+                document.getElementById('is_staff').checked = data.is_staff;
+                document.getElementById('is_superuser').checked = data.is_superuser;
+            });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}

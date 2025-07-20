@@ -1,0 +1,52 @@
+[
+  {
+    "model": "carrito.producto",
+    "pk": 1,
+    "fields": {
+      "nombre": "Smartphone X",
+      "descripcion": "Último modelo con cámara de 108MP",
+      "precio": 899.99,
+      "inventario": 50
+    }
+  },
+  {
+    "model": "carrito.producto",
+    "pk": 2,
+    "fields": {
+      "nombre": "Laptop Pro",
+      "descripcion": "16GB RAM, 1TB SSD, i7 12va gen",
+      "precio": 1299.99,
+      "inventario": 30
+    }
+  },
+  {
+    "model": "carrito.producto",
+    "pk": 3,
+    "fields": {
+      "nombre": "Auriculares Inalámbricos",
+      "descripcion": "Cancelación de ruido activa",
+      "precio": 199.99,
+      "inventario": 100
+    }
+  },
+  {
+    "model": "carrito.producto",
+    "pk": 4,
+    "fields": {
+      "nombre": "Smart TV 55\"",
+      "descripcion": "4K HDR, Android TV",
+      "precio": 599.99,
+      "inventario": 20
+    }
+  },
+  {
+    "model": "carrito.producto",
+    "pk": 5,
+    "fields": {
+      "nombre": "Tablet 10\"",
+      "descripcion": "128GB almacenamiento, lápiz incluido",
+      "precio": 349.99,
+      "inventario": 40
+    }
+  }
+]

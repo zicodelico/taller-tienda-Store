@@ -1,0 +1,101 @@
+{% extends 'carrito/base.html' %}
+
+{% block title %}Editar {{ producto.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Editando: {{ producto.nombre }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_nombre" class="form-label">Nombre del Producto</label>
+                            {{ form.nombre }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_descripcion" class="form-label">Descripción</label>
+                            {{ form.descripcion }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_precio" class="form-label">Precio Unitario</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    {{ form.precio }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_inventario" class="form-label">Cantidad en Inventario</label>
+                                {{ form.inventario }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_imagen" class="form-label">Imagen del Producto</label>
+                            {% if producto.imagen %}
+                            <div class="mb-2">
+                                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" 
+                                     class="img-thumbnail" style="max-height: 100px;">
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" 
+                                           name="imagen-clear" id="imagen-clear">
+                                    <label class="form-check-label" for="imagen-clear">
+                                        Eliminar imagen actual
+                                    </label>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {{ form.imagen }}
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'carrito:admin_lista_productos' %}" class="btn btn-secondary me-md-2">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Información adicional -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información del Producto</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <strong>Creado por:</strong> 
+                            {% if producto.creado_por %}
+                                {{ producto.creado_por.username }}
+                            {% else %}
+                                Sistema
+                            {% endif %}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Fecha creación:</strong> {{ producto.creado|date:"d/m/Y H:i" }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Última actualización:</strong> {{ producto.actualizado|date:"d/m/Y H:i" }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

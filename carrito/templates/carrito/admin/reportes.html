@@ -1,0 +1,116 @@
+{% extends 'carrito/base.html' %}
+
+{% block title %}Reportes de Productos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-graph-up"></i> Reportes de Productos</h2>
+        <div>
+            <a href="{% url 'carrito:admin_panel' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Volver al panel
+            </a>
+        </div>
+    </div>
+
+    <!-- Resumen Estadístico -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">${{ estadisticas.valor_total|floatformat:2 }}</h5>
+                    <p class="card-text">Valor total del inventario</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">{{ estadisticas.total_inventario }}</h5>
+                    <p class="card-text">Unidades en stock</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">${{ estadisticas.precio_promedio|floatformat:2 }}</h5>
+                    <p class="card-text">Precio promedio</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos más populares -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4><i class="bi bi-star-fill"></i> Productos más populares</h4>
+        </div>
+        <div class="card-body">
+            {% if productos_populares %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Unidades vendidas</th>
+                            <th>Veces agregado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos_populares %}
+                        <tr>
+                            <td>{{ producto.producto__nombre }}</td>
+                            <td>{{ producto.total_vendido }}</td>
+                            <td>{{ producto.veces_agregado }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No hay datos de productos vendidos aún.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Evolución de inventario -->
+    <div class="card">
+        <div class="card-header">
+            <h4><i class="bi bi-calendar-week"></i> Evolución del inventario (últimos 30 días)</h4>
+        </div>
+        <div class="card-body">
+            {% if historial %}
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Productos modificados</th>
+                            <th>Total en inventario</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registro in historial %}
+                        <tr>
+                            <td>{{ registro.actualizado|date:"d/m/Y" }}</td>
+                            <td>{{ registro.total }}</td>
+                            <td>{{ registro.nuevo_inventario }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No hay registros de cambios en el último mes.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
